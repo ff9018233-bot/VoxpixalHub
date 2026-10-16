@@ -1,0 +1,24 @@
+name: Build plugin
+on:
+  push:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Unzip and build
+        run: |
+          unzip -o HubZones.zip -d work
+          cd "$(dirname "$(find work -name pom.xml | head -1)")"
+          mvn -B package
+          mkdir -p "$GITHUB_WORKSPACE/out"
+          cp target/HubZones.jar "$GITHUB_WORKSPACE/out/"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: HubZones-jar
+          path: out/HubZones.jar
